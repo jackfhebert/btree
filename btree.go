@@ -42,12 +42,12 @@ func NewBTree(dimension int) *BTree {
 }
 
 func (tree *BTree) Insert(key int, value interface{}) {
-	fmt.Println("Adding value %s to tree.", key)
+	fmt.Println("Adding value", key, "to tree.")
 	tree.root.Insert(Item{key, value}, nil)
 }
 
 func (node *Node) Insert(value Item, child *Node) bool {
-	fmt.Println("Adding value %s to node.", value)
+	fmt.Println("Adding value", value, "to node.")
 	if (node.isLeaf || child != nil) {
 		node.insertItemIntoNode(value, child)
 		if node.currentSize > node.maxSize {
@@ -82,7 +82,7 @@ func (node *Node) insertItemIntoNode(value Item, child *Node) {
 
 	node.items[node.currentSize] = value
 	if !node.isLeaf {
-		node.children[node.currentSize + 2] = child
+		node.children[node.currentSize + 1] = child
 	}
 	node.currentSize += 1
 }
@@ -127,6 +127,9 @@ func (node *Node) size() int {
 }
 
 func (node *Node) traversal() []Item {
+	// TODO: Actually, I think append will handle increasing capacity
+	// so I don't need to do this. Which is good because calling size()
+	// at each node ends up quadratic.
 	results := make([]Item, node.size())
 	for i := 0; i < node.currentSize; i++ {
 		if (!node.isLeaf) {

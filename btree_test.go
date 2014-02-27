@@ -89,11 +89,11 @@ func Test_InsertWithChildren(t *testing.T) {
 	lowNode := &Node{true, 5, 0, nil, make([]Item, 5), nil}
 	lowNode.Insert(Item{3, "new right child"}, nil)
 	root.Insert(Item{2, "foo"}, lowNode);
-	if root.currentSize != 1 {
+	if root.currentSize != 2 {
 		t.Error("wrong size on root node", root)
 	}
-	if root.items[0].key != 2 {
-		t.Error("wrong first item", root.items)
+	if root.items[1].key != 2 {
+		t.Error("wrong second item", root.items)
 	}
 	if root.children[0].items[0].key != -1 {
 		t.Error("wrong first child", root.children)
@@ -108,11 +108,11 @@ func Test_InsertWithChildren(t *testing.T) {
 	highNode := &Node{true, 5, 0, nil, make([]Item, 5), nil}
 	highNode.Insert(Item{12, "high right child"}, nil)
 	root.Insert(Item{10, "bar"}, highNode);
-	if root.currentSize != 2 {
+	if root.currentSize != 3 {
 		t.Error("wrong size on root node", root)
 	}
-	if root.items[1].key != 10 {
-		t.Error("wrong second item", root.items)
+	if root.items[2].key != 10 {
+		t.Error("wrong third item", root.items)
 	}
 	if root.children[3].items[0].key != 12 {
 		t.Error("wrong fourth child", root.children)
@@ -121,16 +121,15 @@ func Test_InsertWithChildren(t *testing.T) {
 	midNode := &Node{true, 5, 0, nil, make([]Item, 5), nil}
 	midNode.Insert(Item{7, "mid right child"}, nil)
 	root.Insert(Item{5, "baz"}, midNode);
-	if root.currentSize != 3 {
+	if root.currentSize != 4 {
 		t.Error("wrong size on root node", root)
 	}
-	if root.items[1].key != 5 {
-		t.Error("wrong second item", root.items)
+	if root.items[2].key != 5 {
+		t.Error("wrong third item", root.items)
 	}
-	if root.children[2].items[0].key != 7 {
-		t.Error("wrong fourth child", root.children[4])
+	if root.children[3].items[0].key != 7 {
+		t.Error("wrong fourth child", root.children[2])
 	}
-
 }
 
 // Test splitting a node when the parent node has enough space such that
