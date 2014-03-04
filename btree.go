@@ -9,63 +9,96 @@ import (
 	"fmt"
 )
 
-type Item struct {
+// An item inside of a btree.
+type item struct {
+	// The key used for sorting items.
+	// TODO: int, string? do I have to choose?
 	key int
+	// The data being placed inside of the tree.
+	// TODO: Is this really the right type? 
 	value interface{}
 }
 
-type Node struct {
+// Internal node for the tree.
+type node struct {
 	// Metadata items.
+	//
+	// Is this node a leaf in the tree?
 	isLeaf bool
+	// How many items should this leaf hold before it splits?
 	maxSize int
+	// The number of items currently held in this node.
 	currentSize int
 
 	// The parent of this node, possibly nil.
-	parent *Node
+	parent *node
 
-
-	items []Item
-	children []*Node
+	// The data items inside this node. These should be in sorted order.
+	items []item
+	// If not a leaf, these are the child nodes.
+	// Note that for item[n], items in child[n] are all less than it and
+	// items in child[n+1] are all larger than it. This also implies
+	// n+1 items in the children list for n items in the items list.
+	children []*node
 }
 
+// The external interface to the tree.
 type BTree struct {
 	dimension int
-	root *Node
+	root *node
 }
 
 
-
+// Create a new BTree with the given dimension.
 func NewBTree(dimension int) *BTree {
-	rootNode := &Node{true, 2 * dimension, 0, nil, make([]Item, 2 * dimension), nil}
+	rootNode := &node{true, 2 * dimension, 0, nil, make([]item, 2 * dimension), nil}
 	tree := &BTree{dimension, rootNode}
 	return tree
 }
 
+
+// Add a key value pair into the tree.
 func (tree *BTree) Insert(key int, value interface{}) {
 	fmt.Println("Adding value", key, "to tree.")
-	tree.root.Insert(Item{key, value}, nil)
+	tree.root.insert(item{key, value}, nil)
 }
 
-func (node *Node) Insert(value Item, child *Node) bool {
+
+func (node *node) insert(value item, child *node) {
 	fmt.Println("Adding value", value, "to node.")
+	// If this node is a leaf, then clearly we need to insert into the list.
+	// If there is a child pointer, then insert as well since this is
+	// probably coming back up the tree from a node splitting.
 	if (node.isLeaf || child != nil) {
 		node.insertItemIntoNode(value, child)
+		// If we passed the max size, then split.
 		if node.currentSize > node.maxSize {
 			node.splitNode()
 
 		}
 	} else {
+		// Find the correct child node to insert into.
+		// Note that we know there is no child pointer
+		// to handle since we checked for that above.
 		for i := 0; i < node.currentSize; i++ {
 			if value.key <= node.items[i].key {
-				return node.children[i].Insert(value, nil)
+				node.children[i].insert(value, nil)
+				return
 			}
 		}
-		return node.children[node.currentSize + 1].Insert(value, nil)
+		// If the item to add is larger than all of the items, then it
+		// is handled by the last child node.
+		node.children[node.currentSize + 1].insert(value, nil)
+		return
 	}
-	return true
 }
 
-func (node *Node) insertItemIntoNode(value Item, child *Node) {
+
+// Insert the item into the current node.
+// This differs from the node.insert() function above in that here we
+// always add to the current items list and do not worry about splitting.
+// The goal here is just to keep the list of items[] and children[] sorted.
+func (node *node) insertItemIntoNode(value item, child *node) {
 	for i := 0; i < node.currentSize; i++ {
 		if value.key < node.items[i].key {
 			bumpedItem := node.items[i]
@@ -87,34 +120,37 @@ func (node *Node) insertItemIntoNode(value Item, child *Node) {
 	node.currentSize += 1
 }
 
-func (node *Node) splitNode() {
+func (currentNode *node) splitNode() {
 	// Create a new node for half of these children.
-	rightNode := &Node{true, node.maxSize, 0, node,
-		make([]Item, len(node.items)), nil}
+	rightNode := &node{true, currentNode.maxSize, 0, currentNode,
+		make([]item, len(currentNode.items)), nil}
 
 	// The median node for the data in this node.
-	middleIndex := len(node.items) / 2
-	median := node.items[middleIndex]
+	middleIndex := len(currentNode.items) / 2
+	median := currentNode.items[middleIndex]
 
 	//node.items[middleIndex] = nil
-	node.currentSize--
+	currentNode.currentSize--
 
-	for i := middleIndex + 1; i < len(node.items); i++ {
-		rightNode.items[rightNode.currentSize] = node.items[i]
+	for i := middleIndex + 1; i < len(currentNode.items); i++ {
+		rightNode.items[rightNode.currentSize] = currentNode.items[i]
 		rightNode.currentSize++
 		//node.items[i] = nil;
-		node.currentSize--;
+		currentNode.currentSize--;
 	}
 
-	if node.parent != nil {
-		node.parent.Insert(median, rightNode)
+	if currentNode.parent != nil {
+		currentNode.parent.insert(median, rightNode)
 	} else {
 
 
 	}
 }
 
-func (node *Node) size() int {
+// Determine the total size of the tree.
+// In theory we could track this at the root, but we can also do it this
+// way for fun.
+func (node *node) size() int {
 	totalSize := node.currentSize
 	if !node.isLeaf {
 		for i := 0; i < node.currentSize; i++ {
@@ -126,11 +162,11 @@ func (node *Node) size() int {
 	return totalSize
 }
 
-func (node *Node) traversal() []Item {
+func (node *node) traversal() []item {
 	// TODO: Actually, I think append will handle increasing capacity
 	// so I don't need to do this. Which is good because calling size()
 	// at each node ends up quadratic.
-	results := make([]Item, node.size())
+	results := make([]item, node.size())
 	for i := 0; i < node.currentSize; i++ {
 		if (!node.isLeaf) {
 			results = append(results, node.children[i].traversal()...)
