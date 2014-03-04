@@ -35,7 +35,7 @@ func Test_AddAFewElementsNoSplitting(t *testing.T) {
 	if tree.root.currentSize != 1 {
 		t.Error("node has the wrong size", tree.root)
 	}
-
+	
 	// Add an item which should be sorted after the initial one.
 	tree.Insert(3, "bar")
 	if tree.root.items[1].key != 3 {
@@ -88,7 +88,7 @@ func Test_InsertWithChildren(t *testing.T) {
 
 	lowNode := &node{true, 5, 0, nil, make([]item, 5), nil}
 	lowNode.insert(item{3, "new right child"}, nil)
-	root.insert(item{2, "foo"}, lowNode);
+	root.insert(item{2, "foo"}, lowNode)
 	if root.currentSize != 2 {
 		t.Error("wrong size on root node", root)
 	}
@@ -107,7 +107,7 @@ func Test_InsertWithChildren(t *testing.T) {
 
 	highNode := &node{true, 5, 0, nil, make([]item, 5), nil}
 	highNode.insert(item{12, "high right child"}, nil)
-	root.insert(item{10, "bar"}, highNode);
+	root.insert(item{10, "bar"}, highNode)
 	if root.currentSize != 3 {
 		t.Error("wrong size on root node", root)
 	}
@@ -120,7 +120,7 @@ func Test_InsertWithChildren(t *testing.T) {
 
 	midNode := &node{true, 5, 0, nil, make([]item, 5), nil}
 	midNode.insert(item{7, "mid right child"}, nil)
-	root.insert(item{5, "baz"}, midNode);
+	root.insert(item{5, "baz"}, midNode)
 	if root.currentSize != 4 {
 		t.Error("wrong size on root node", root)
 	}
@@ -135,16 +135,34 @@ func Test_InsertWithChildren(t *testing.T) {
 // Test splitting a node when the parent node has enough space such that
 // further splitting is not required.
 func Test_SplitNoParentHasRoom(t *testing.T) {
-	root := node{false, 5, 0, nil, make([]item, 5), make([]*node, 5)}
+	root := node{false, 5, 1, nil, make([]item, 6), make([]*node, 7)}
 	// Start it off with some initial data.
 	root.items[0] = item{0, "initial"}
-	root.children[0] = &node{true, 3, 0, nil, make([]item, 3), nil}
+	root.children[0] = &node{true, 3, 0, nil, make([]item, 4), nil}
 	root.children[0].parent = &root
 	root.children[0].insert(item{-1, "left child"}, nil)
 
-	root.children[1] = &node{true, 3, 0, nil, make([]item, 3), nil}
+	root.children[1] = &node{true, 3, 0, nil, make([]item, 4), nil}
 	root.children[1].parent = &root
 	root.children[1].insert(item{1, "right child"}, nil)
 
 	// Now add some nodes.
+	root.insert(item{2, "right child (2)"}, nil)
+	root.insert(item{3, "right child (3)"}, nil)
+	root.insert(item{4, "right child (4)"}, nil)
+	root.insert(item{5, "right child (5)"}, nil)
+
+	if root.currentSize != 2 {
+		t.Error("root has wrong size", root)
+	}
+	if root.children[0].currentSize != 1 {
+		t.Error("first child has the wrong size", root.children[0])
+	}
+	if root.children[1].currentSize != 0 {
+		t.Error("second child has the wrong size", root.children[1])
+	}
+}
+
+func Test_SplitRoot(t * testing.T) {
+
 }

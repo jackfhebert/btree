@@ -45,17 +45,15 @@ type node struct {
 // The external interface to the tree.
 type BTree struct {
 	dimension int
-	root *node
+	root      *node
 }
-
 
 // Create a new BTree with the given dimension.
 func NewBTree(dimension int) *BTree {
-	rootNode := &node{true, 2 * dimension, 0, nil, make([]item, 2 * dimension), nil}
+	rootNode := &node{true, 2 * dimension, 0, nil, make([]item, 2*dimension + 1), nil}
 	tree := &BTree{dimension, rootNode}
 	return tree
 }
-
 
 // Add a key value pair into the tree.
 func (tree *BTree) Insert(key int, value interface{}) {
@@ -63,13 +61,12 @@ func (tree *BTree) Insert(key int, value interface{}) {
 	tree.root.insert(item{key, value}, nil)
 }
 
-
 func (node *node) insert(value item, child *node) {
-	fmt.Println("Adding value", value, "to node.")
+	fmt.Println("Adding value", value, "to node", node)
 	// If this node is a leaf, then clearly we need to insert into the list.
 	// If there is a child pointer, then insert as well since this is
 	// probably coming back up the tree from a node splitting.
-	if (node.isLeaf || child != nil) {
+	if node.isLeaf || child != nil {
 		node.insertItemIntoNode(value, child)
 		// If we passed the max size, then split.
 		if node.currentSize > node.maxSize {
@@ -88,11 +85,10 @@ func (node *node) insert(value item, child *node) {
 		}
 		// If the item to add is larger than all of the items, then it
 		// is handled by the last child node.
-		node.children[node.currentSize + 1].insert(value, nil)
+		node.children[node.currentSize].insert(value, nil)
 		return
 	}
 }
-
 
 // Insert the item into the current node.
 // This differs from the node.insert() function above in that here we
@@ -105,9 +101,9 @@ func (node *node) insertItemIntoNode(value item, child *node) {
 			node.items[i] = value
 			value = bumpedItem
 
-			if (!node.isLeaf) {
-				bumpedChild := node.children[i + 1]
-				node.children[i + 1] = child
+			if !node.isLeaf {
+				bumpedChild := node.children[i+1]
+				node.children[i+1] = child
 				child = bumpedChild
 			}
 		}
@@ -115,7 +111,7 @@ func (node *node) insertItemIntoNode(value item, child *node) {
 
 	node.items[node.currentSize] = value
 	if !node.isLeaf {
-		node.children[node.currentSize + 1] = child
+		node.children[node.currentSize+1] = child
 	}
 	node.currentSize += 1
 }
@@ -128,22 +124,48 @@ func (currentNode *node) splitNode() {
 	// The median node for the data in this node.
 	middleIndex := len(currentNode.items) / 2
 	median := currentNode.items[middleIndex]
+	currentNode.items[middleIndex] = item{0, nil}
 
 	//node.items[middleIndex] = nil
 	currentNode.currentSize--
 
 	for i := middleIndex + 1; i < len(currentNode.items); i++ {
 		rightNode.items[rightNode.currentSize] = currentNode.items[i]
+		// TODO: copy children pointers if they exist.
 		rightNode.currentSize++
-		//node.items[i] = nil;
-		currentNode.currentSize--;
+		currentNode.items[i] = item{0, nil}
+		currentNode.currentSize--
 	}
 
+	// If we have a parent node, then insert into it (it might split further)
+	// but then we are done here.
+	// If there is no parent, then we need to create a new node. The idea is
+	// to keep pointers to this node correct, but move half of the children
+	// into a new left node.
 	if currentNode.parent != nil {
 		currentNode.parent.insert(median, rightNode)
+		return
 	} else {
-
-
+		leftNode := &node{true, currentNode.maxSize, 0, currentNode,
+			make([]item, len(currentNode.items)), nil}
+		for i := 0; i < middleIndex; i++ {
+			leftNode.items[i] = currentNode.items[i]
+			// TODO: copy children pointers if they exist.
+			currentNode.items[i] = item{0, nil}
+			leftNode.currentSize++
+		}
+		// The current node now only has one item - this is only
+		// allowed at the root of the tree.
+		currentNode.currentSize = 1
+		currentNode.items[0] = median
+		// This node is no longer a leaf.
+		if currentNode.isLeaf {
+			currentNode.isLeaf = false
+				currentNode.children = make([]*node, 1 + cap(currentNode.items))
+		}
+		// 
+		currentNode.children[0] = leftNode
+		currentNode.children[1] = rightNode
 	}
 }
 
@@ -168,12 +190,12 @@ func (node *node) traversal() []item {
 	// at each node ends up quadratic.
 	results := make([]item, node.size())
 	for i := 0; i < node.currentSize; i++ {
-		if (!node.isLeaf) {
+		if !node.isLeaf {
 			results = append(results, node.children[i].traversal()...)
 		}
 		results = append(results, node.items[i])
 	}
-	if (!node.isLeaf) {
+	if !node.isLeaf {
 		results = append(results, node.children[node.currentSize].traversal()...)
 	}
 	return results
