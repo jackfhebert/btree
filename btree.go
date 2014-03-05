@@ -50,7 +50,7 @@ type BTree struct {
 
 // Create a new BTree with the given dimension.
 func NewBTree(dimension int) *BTree {
-	rootNode := &node{true, 2 * dimension, 0, nil, make([]item, 2*dimension + 1), nil}
+	rootNode := &node{true, 2 * dimension, 0, nil, make([]item, 2*dimension+1), nil}
 	tree := &BTree{dimension, rootNode}
 	return tree
 }
@@ -163,7 +163,7 @@ func (currentNode *node) splitNode() {
 		// This node is no longer a leaf.
 		if currentNode.isLeaf {
 			currentNode.isLeaf = false
-				currentNode.children = make([]*node, 1 + cap(currentNode.items))
+			currentNode.children = make([]*node, 1+cap(currentNode.items))
 		}
 		// 
 		currentNode.children[0] = leftNode
