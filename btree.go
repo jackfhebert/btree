@@ -61,6 +61,10 @@ func (tree *BTree) Insert(key int, value interface{}) {
 	tree.root.insert(item{key, value}, nil)
 }
 
+func (tree *BTree) Size() int {
+	return tree.root.size()
+}
+
 func (node *node) insert(value item, child *node) {
 	fmt.Println("Adding value", value, "to node", node)
 	// If this node is a leaf, then clearly we need to insert into the list.
@@ -125,8 +129,6 @@ func (currentNode *node) splitNode() {
 	middleIndex := len(currentNode.items) / 2
 	median := currentNode.items[middleIndex]
 	currentNode.items[middleIndex] = item{0, nil}
-
-	//node.items[middleIndex] = nil
 	currentNode.currentSize--
 
 	for i := middleIndex + 1; i < len(currentNode.items); i++ {
@@ -169,7 +171,8 @@ func (currentNode *node) splitNode() {
 	}
 }
 
-// Determine the total size of the tree.
+// Determine the total size of the tree below this node, including the
+// items contained in this node.
 // In theory we could track this at the root, but we can also do it this
 // way for fun.
 func (node *node) size() int {
@@ -184,19 +187,19 @@ func (node *node) size() int {
 	return totalSize
 }
 
-func (node *node) traversal() []item {
-	// TODO: Actually, I think append will handle increasing capacity
-	// so I don't need to do this. Which is good because calling size()
-	// at each node ends up quadratic.
-	results := make([]item, node.size())
+// Return a sorted list of the keys in under this node.
+func (node *node) keyTraversal() []int {
+	// TODO: Pass slice pointers in such that we can create the initial
+	// slice of the right size in a single allocation.
+	results := make([]int, 0)
 	for i := 0; i < node.currentSize; i++ {
 		if !node.isLeaf {
-			results = append(results, node.children[i].traversal()...)
+			results = append(results, node.children[i].keyTraversal()...)
 		}
-		results = append(results, node.items[i])
+		results = append(results, node.items[i].key)
 	}
 	if !node.isLeaf {
-		results = append(results, node.children[node.currentSize].traversal()...)
+		results = append(results, node.children[node.currentSize].keyTraversal()...)
 	}
 	return results
 }

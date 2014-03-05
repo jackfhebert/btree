@@ -155,14 +155,45 @@ func Test_SplitNoParentHasRoom(t *testing.T) {
 	if root.currentSize != 2 {
 		t.Error("root has wrong size", root)
 	}
+	// 6 inserts called above- and 1 item manually inserted to start
+	 // it off.
+	if root.size() != 7 {
+		t.Error("root has wrong total size", root.size())
+	}
 	if root.children[0].currentSize != 1 {
 		t.Error("first child has the wrong size", root.children[0])
 	}
-	if root.children[1].currentSize != 0 {
+	if root.children[1].currentSize != 2 {
 		t.Error("second child has the wrong size", root.children[1])
 	}
 }
 
+// Test that we can split at the parent level.
 func Test_SplitRoot(t * testing.T) {
+	tree := NewBTree(2);
+	tree.Insert(5, "first item")
+	tree.Insert(4, "second item")
+	tree.Insert(8, "third item")
+	tree.Insert(7, "fourth item")
+	tree.Insert(1, "fifth item");
+	if tree.Size() != 5 {
+		t.Error("tree has wrong size:", tree.Size(), tree)
+	}
+	expectedKeys := []int{1, 4, 5, 7, 8}
+	keys := tree.root.keyTraversal();
+	if len(keys) != len(expectedKeys) {
+		t.Error("weird keys length: ", keys)
+	} else {
+		for i := 0; i < len(keys); i++ {
+			if keys[i] != expectedKeys[i] {
+				t.Error("weird key values: ", keys)
+				break
+			}
+				
+		}
+	}
 
+	if tree.root.currentSize != 1 {
+		t.Error("root node has weird size:", tree.root)
+	}
 }
