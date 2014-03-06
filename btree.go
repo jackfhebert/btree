@@ -44,12 +44,16 @@ type node struct {
 
 // The external interface to the tree.
 type BTree struct {
+	// TODO: We don't end up using the dimension anywhere - so maybe
+	// drop it? I do like that the tree struct wraps the interface
+	// of the nodes themselves.
 	dimension int
 	root      *node
 }
 
 // Create a new BTree with the given dimension.
 func NewBTree(dimension int) *BTree {
+	// Note that the root starts off as a leaf.
 	rootNode := &node{true, 2 * dimension, 0, nil, make([]item, 2*dimension+1), nil}
 	tree := &BTree{dimension, rootNode}
 	return tree
@@ -61,10 +65,27 @@ func (tree *BTree) Insert(key int, value interface{}) {
 	tree.root.insert(item{key, value}, nil)
 }
 
+// Determine the number of items in the tree.
 func (tree *BTree) Size() int {
 	return tree.root.size()
 }
 
+// Find the value of the first item in the tree with the same
+// key. If there are multiple items with the same key, the first
+// found will be returned. If the key is not found, nil will be
+// returned.
+func (tree *BTree) Search(key int) interface{} {
+	return tree.root.search(key)
+}
+
+func (tree *BTree) Remove(key int) interface{} {
+	// TODO
+	return nil
+}
+
+// Function to insert an item into a node.
+// This function may call recursively into its child nodes to find the
+// correct location.
 func (node *node) insert(value item, child *node) {
 	fmt.Println("Adding value", value, "to node", node)
 	// If this node is a leaf, then clearly we need to insert into the list.
@@ -120,6 +141,12 @@ func (node *node) insertItemIntoNode(value item, child *node) {
 	node.currentSize += 1
 }
 
+// Split a node which has too many items - ie currentSize is larger
+// than maxSize. This is done by creating a new leaf node to hold half
+// of the items in the current node, then inserting this into the
+// parent above this node (which may cause it to split, but that is
+// handled by the insertion code). In the case of the root node splitting,
+// that must be handled specially.
 func (currentNode *node) splitNode() {
 	// Create a new node for half of these children.
 	rightNode := &node{true, currentNode.maxSize, 0, currentNode,
@@ -169,6 +196,34 @@ func (currentNode *node) splitNode() {
 		currentNode.children[0] = leftNode
 		currentNode.children[1] = rightNode
 	}
+}
+
+func (n *node) search(key int) interface{} {
+	if n.isLeaf {
+		// If we are at a leaf node, search through the items list
+		// until the end or we have found a key which is larger
+		// than the search key.
+		for i:= 0; i < n.currentSize && key >= n.items[i].key; i++ {
+			if n.items[i].key == key {
+				return n.items[i].value
+			}
+		}
+	} else {
+		// Search through the list to find the first node
+		// which is larger than the key which indicates that
+		// the data is in the matching child node.
+		for i := 0; i < n.currentSize; i++ {
+			if key == n.items[i].key {
+				return n.items[i].value
+			}
+			if key < n.items[i].key {
+				return n.children[i].search(key)
+			}
+		}
+		return n.children[n.currentSize].search(key)
+	}
+	// The item is not in the tree.
+	return nil
 }
 
 // Determine the total size of the tree below this node, including the

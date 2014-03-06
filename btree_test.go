@@ -192,8 +192,24 @@ func Test_SplitRoot(t *testing.T) {
 
 		}
 	}
-
 	if tree.root.currentSize != 1 {
 		t.Error("root node has weird size:", tree.root)
+	}
+
+	// Confirm that search returns valid items from the tree.
+	if tree.Search(5) != "first item" {
+		t.Error("Search for key 5 failed")
+	}
+	if tree.Search(4) != "second item" {
+		t.Error("Search for key 4 failed")
+	}
+	if tree.Search(8) != "third item" {
+		t.Error("Search for key 8 failed")
+	}
+	if tree.Search(7) != "fourth item" {
+		t.Error("Search for key 7 failed")
+	}
+	if tree.Search(6) != nil {
+		t.Error("search for key 6 failed")
 	}
 }
