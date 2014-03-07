@@ -243,7 +243,7 @@ func Test_AddManyAlternating(t *testing.T) {
 	for i := 0; i < 50; i++ {
 		tree.Insert(i, fmt.Sprintf("foo: %d", i));
 		tree.Insert(-i, fmt.Sprintf("foo: %d", -i));
-		if tree.Size() != 2*i+1 {
+		if tree.Size() != 2*(i+1) {
 			t.Error("break in i:", i);
 			break;
 		}
