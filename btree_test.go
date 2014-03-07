@@ -355,4 +355,7 @@ func Test_AddManyRandom(t *testing.T) {
 
 		}
 	}
+	if tree.Depth() != 3 {
+		t.Error("Weird tree depth:", tree.Depth())
+	}
 }

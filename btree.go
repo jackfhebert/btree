@@ -70,6 +70,11 @@ func (tree *BTree) Size() int {
 	return tree.root.size()
 }
 
+// Determine the maximum depth of the tree.
+func (tree *BTree) Depth() int {
+	return tree.root.depth()
+}
+
 // Find the value of the first item in the tree with the same
 // key. If there are multiple items with the same key, the first
 // found will be returned. If the key is not found, nil will be
@@ -267,6 +272,20 @@ func (node *node) size() int {
 
 	}
 	return totalSize
+}
+
+func (node *node) depth() int {
+	if node.isLeaf {
+		return 1
+	}
+	maxDepth := 1;
+	for i := 0; i < node.currentSize; i++ {
+		childDepth := node.children[i].depth() 
+		if childDepth > maxDepth {
+			maxDepth = childDepth;
+		}
+	}
+	return 1 + maxDepth
 }
 
 // Return a sorted list of the keys in under this node.
