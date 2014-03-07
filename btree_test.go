@@ -239,7 +239,7 @@ func Test_AddManyAllIncreasing(t *testing.T) {
 }
 
 func Test_AddManyAlternating(t *testing.T) {
-	tree := NewBTree(2);
+	tree := NewBTree(3);
 	for i := 0; i < 50; i++ {
 		tree.Insert(i, fmt.Sprintf("foo: %d", i));
 		tree.Insert(-i, fmt.Sprintf("foo: %d", -i));
