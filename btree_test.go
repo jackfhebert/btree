@@ -1,6 +1,7 @@
 package BTree
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -176,10 +177,12 @@ func Test_SplitRoot(t *testing.T) {
 	tree.Insert(8, "third item")
 	tree.Insert(7, "fourth item")
 	tree.Insert(1, "fifth item")
-	if tree.Size() != 5 {
+	tree.Insert(1, "sixth item")
+	tree.Insert(1, "seventh item")
+	if tree.Size() != 7 {
 		t.Error("tree has wrong size:", tree.Size(), tree)
 	}
-	expectedKeys := []int{1, 4, 5, 7, 8}
+	expectedKeys := []int{1, 1, 1, 4, 5, 7, 8}
 	keys := tree.root.keyTraversal()
 	if len(keys) != len(expectedKeys) {
 		t.Error("weird keys length: ", keys)
@@ -209,7 +212,30 @@ func Test_SplitRoot(t *testing.T) {
 	if tree.Search(7) != "fourth item" {
 		t.Error("Search for key 7 failed")
 	}
+	// Some values not expected to be found in the tree.
 	if tree.Search(6) != nil {
 		t.Error("search for key 6 failed")
 	}
+	if tree.Search(-2) != nil {
+		t.Error("search for key 6 failed")
+	}
+	if tree.Search(100) != nil {
+		t.Error("search for key 6 failed")
+	}
+}
+
+func Test_AddMany(t *testing.T) {
+	tree := NewBTree(2);
+	for i := 0; i < 50; i++ {
+		tree.Insert(i, fmt.Sprintf("foo: %d", i));
+		if tree.Size() != i+1 {
+			t.Error("break in i:", i);
+			break;
+		}
+	}
+	if tree.Size() != 50 {
+		t.Error("tree has wrong size:", tree.Size(), tree.root)
+	}
+
+
 }

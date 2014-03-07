@@ -87,7 +87,7 @@ func (tree *BTree) Remove(key int) interface{} {
 // This function may call recursively into its child nodes to find the
 // correct location.
 func (node *node) insert(value item, child *node) {
-	fmt.Println("Adding value", value, "to node", node)
+	fmt.Println("Adding value", value, "child:", child, "to node", node)
 	// If this node is a leaf, then clearly we need to insert into the list.
 	// If there is a child pointer, then insert as well since this is
 	// probably coming back up the tree from a node splitting.
@@ -148,9 +148,13 @@ func (node *node) insertItemIntoNode(value item, child *node) {
 // handled by the insertion code). In the case of the root node splitting,
 // that must be handled specially.
 func (currentNode *node) splitNode() {
+	fmt.Println("Splitting:", currentNode)
 	// Create a new node for half of these children.
-	rightNode := &node{true, currentNode.maxSize, 0, currentNode,
+	rightNode := &node{true, currentNode.maxSize, 0, currentNode.parent,
 		make([]item, len(currentNode.items)), nil}
+	if currentNode.children != nil {
+		rightNode.children = make([]*node, 1+cap(currentNode.items))
+	}
 
 	// The median node for the data in this node.
 	middleIndex := len(currentNode.items) / 2
@@ -159,11 +163,17 @@ func (currentNode *node) splitNode() {
 	currentNode.currentSize--
 
 	for i := middleIndex + 1; i < len(currentNode.items); i++ {
-		rightNode.items[rightNode.currentSize] = currentNode.items[i]
-		// TODO: copy children pointers if they exist.
+		rightNode.items[rightNode.currentSize] = currentNode.items[i];
+		if currentNode.children != nil {
+			rightNode.isLeaf = false
+			rightNode.children[rightNode.currentSize] = currentNode.children[i];
+		}
 		rightNode.currentSize++
 		currentNode.items[i] = item{0, nil}
 		currentNode.currentSize--
+	}
+	if currentNode.children != nil {
+		rightNode.children[rightNode.currentSize] = currentNode.children[len(currentNode.items)]
 	}
 
 	// If we have a parent node, then insert into it (it might split further)
@@ -177,11 +187,21 @@ func (currentNode *node) splitNode() {
 	} else {
 		leftNode := &node{true, currentNode.maxSize, 0, currentNode,
 			make([]item, len(currentNode.items)), nil}
+		if currentNode.children != nil {
+			leftNode.isLeaf = false;
+			leftNode.children = make([]*node, 1+cap(currentNode.items))
+		}
+
 		for i := 0; i < middleIndex; i++ {
-			leftNode.items[i] = currentNode.items[i]
-			// TODO: copy children pointers if they exist.
+			leftNode.items[i] = currentNode.items[i];
+			if currentNode.children != nil {
+				leftNode.children[i] = currentNode.children[i];
+			}
 			currentNode.items[i] = item{0, nil}
 			leftNode.currentSize++
+		}
+		if currentNode.children != nil {
+			leftNode.children[middleIndex] = currentNode.children[middleIndex];
 		}
 		// The current node now only has one item - this is only
 		// allowed at the root of the tree.
@@ -192,7 +212,8 @@ func (currentNode *node) splitNode() {
 			currentNode.isLeaf = false
 			currentNode.children = make([]*node, 1+cap(currentNode.items))
 		}
-		// 
+		//
+	        rightNode.parent = currentNode;
 		currentNode.children[0] = leftNode
 		currentNode.children[1] = rightNode
 	}
@@ -231,7 +252,8 @@ func (n *node) search(key int) interface{} {
 // In theory we could track this at the root, but we can also do it this
 // way for fun.
 func (node *node) size() int {
-	totalSize := node.currentSize
+	totalSize := node.currentSize;
+	fmt.Println(node)
 	if !node.isLeaf {
 		for i := 0; i < node.currentSize; i++ {
 			totalSize += node.children[i].size()
