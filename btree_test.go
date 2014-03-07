@@ -225,7 +225,7 @@ func Test_SplitRoot(t *testing.T) {
 }
 
 func Test_AddManyAllIncreasing(t *testing.T) {
-	tree := NewBTree(2);
+	tree := NewBTree(2)
 	// Add a bunch of items and make sure that it doesn't crash.
 	for i := 0; i < 50; i++ {
 		tree.Insert(i, fmt.Sprintf("foo: %d", i))
@@ -249,21 +249,21 @@ func Test_AddManyAllIncreasing(t *testing.T) {
 }
 
 func Test_AddManyAllDecreasing(t *testing.T) {
-	tree := NewBTree(2);
+	tree := NewBTree(2)
 	// Add a bunch of items and make sure that it doesn't crash.
-	for i := 0; i >-20; i-- {
+	for i := 0; i > -20; i-- {
 		tree.Insert(i, fmt.Sprintf("foo: %d", i))
 		if tree.Size() != -i+1 {
 			t.Error("break in i:", i)
 			break
 		}
 	}
-	t.Error(tree.root.keyTraversal())
+
 	// Check that the size is ok.
 	if tree.Size() != 20 {
 		t.Error("tree has wrong size:", tree.Size(), tree.root)
 	}
-	/*
+
 	// Perform some searches.
 	if tree.Search(38) != nil {
 		t.Error("Accidentally found a value for 38.")
@@ -271,9 +271,8 @@ func Test_AddManyAllDecreasing(t *testing.T) {
 	if tree.Search(-10) != "foo: -10" {
 		t.Error("Wrong value for key -10:", tree.Search(-10))
 	}
-	 */
 }
-/*
+
 func Test_AddManyAlternating(t *testing.T) {
 	tree := NewBTree(3)
 	for i := 0; i < 50; i++ {
@@ -288,13 +287,12 @@ func Test_AddManyAlternating(t *testing.T) {
 		t.Error("tree has wrong size:", tree.Size(), tree.root)
 	}
 	if tree.Search(0) != "foo: 0" {
-		t.Error("Wrong value found for 0:", tree.Search(0));
+		t.Error("Wrong value found for 0:", tree.Search(0))
 	}
 	if tree.Search(5) != "foo: 5" {
-		t.Error("Wrong value found for 5:", tree.Search(5));
+		t.Error("Wrong value found for 5:", tree.Search(5))
 	}
-//	if tree.Search(-10) != "foo: -10" {
-//		t.Error("Wrong value found for -10:", tree.Search(-10));
-//	}
+	if tree.Search(-10) != "foo: -10" {
+		t.Error("Wrong value found for -10:", tree.Search(-10))
+	}
 }
-*/

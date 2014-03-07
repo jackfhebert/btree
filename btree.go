@@ -166,7 +166,7 @@ func (currentNode *node) splitNode() {
 		rightNode.items[rightNode.currentSize] = currentNode.items[i]
 		if currentNode.children != nil {
 			rightNode.isLeaf = false
-			rightNode.children[rightNode.currentSize] = currentNode.children[i];
+			rightNode.children[rightNode.currentSize] = currentNode.children[i]
 			rightNode.children[rightNode.currentSize].parent = rightNode
 		}
 		rightNode.currentSize++
@@ -174,7 +174,7 @@ func (currentNode *node) splitNode() {
 		currentNode.currentSize--
 	}
 	if currentNode.children != nil {
-		rightNode.children[rightNode.currentSize] = currentNode.children[len(currentNode.items)];
+		rightNode.children[rightNode.currentSize] = currentNode.children[len(currentNode.items)]
 		rightNode.children[rightNode.currentSize].parent = rightNode
 	}
 
@@ -197,14 +197,14 @@ func (currentNode *node) splitNode() {
 		for i := 0; i < middleIndex; i++ {
 			leftNode.items[i] = currentNode.items[i]
 			if currentNode.children != nil {
-				leftNode.children[i] = currentNode.children[i];
+				leftNode.children[i] = currentNode.children[i]
 				leftNode.children[i].parent = leftNode
 			}
 			currentNode.items[i] = item{0, nil}
 			leftNode.currentSize++
 		}
 		if currentNode.children != nil {
-			leftNode.children[middleIndex] = currentNode.children[middleIndex];
+			leftNode.children[middleIndex] = currentNode.children[middleIndex]
 			leftNode.children[middleIndex].parent = leftNode
 		}
 		// The current node now only has one item - this is only
