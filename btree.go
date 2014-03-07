@@ -166,14 +166,16 @@ func (currentNode *node) splitNode() {
 		rightNode.items[rightNode.currentSize] = currentNode.items[i]
 		if currentNode.children != nil {
 			rightNode.isLeaf = false
-			rightNode.children[rightNode.currentSize] = currentNode.children[i]
+			rightNode.children[rightNode.currentSize] = currentNode.children[i];
+			rightNode.children[rightNode.currentSize].parent = rightNode
 		}
 		rightNode.currentSize++
 		currentNode.items[i] = item{0, nil}
 		currentNode.currentSize--
 	}
 	if currentNode.children != nil {
-		rightNode.children[rightNode.currentSize] = currentNode.children[len(currentNode.items)]
+		rightNode.children[rightNode.currentSize] = currentNode.children[len(currentNode.items)];
+		rightNode.children[rightNode.currentSize].parent = rightNode
 	}
 
 	// If we have a parent node, then insert into it (it might split further)
@@ -195,13 +197,15 @@ func (currentNode *node) splitNode() {
 		for i := 0; i < middleIndex; i++ {
 			leftNode.items[i] = currentNode.items[i]
 			if currentNode.children != nil {
-				leftNode.children[i] = currentNode.children[i]
+				leftNode.children[i] = currentNode.children[i];
+				leftNode.children[i].parent = leftNode
 			}
 			currentNode.items[i] = item{0, nil}
 			leftNode.currentSize++
 		}
 		if currentNode.children != nil {
-			leftNode.children[middleIndex] = currentNode.children[middleIndex]
+			leftNode.children[middleIndex] = currentNode.children[middleIndex];
+			leftNode.children[middleIndex].parent = leftNode
 		}
 		// The current node now only has one item - this is only
 		// allowed at the root of the tree.
@@ -220,6 +224,7 @@ func (currentNode *node) splitNode() {
 }
 
 func (n *node) search(key int) interface{} {
+	fmt.Println("Searching for", key, "in", n)
 	if n.isLeaf {
 		// If we are at a leaf node, search through the items list
 		// until the end or we have found a key which is larger
