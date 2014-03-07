@@ -225,12 +225,12 @@ func Test_SplitRoot(t *testing.T) {
 }
 
 func Test_AddManyAllIncreasing(t *testing.T) {
-	tree := NewBTree(2);
+	tree := NewBTree(2)
 	for i := 0; i < 50; i++ {
-		tree.Insert(i, fmt.Sprintf("foo: %d", i));
+		tree.Insert(i, fmt.Sprintf("foo: %d", i))
 		if tree.Size() != i+1 {
-			t.Error("break in i:", i);
-			break;
+			t.Error("break in i:", i)
+			break
 		}
 	}
 	if tree.Size() != 50 {
@@ -239,13 +239,13 @@ func Test_AddManyAllIncreasing(t *testing.T) {
 }
 
 func Test_AddManyAlternating(t *testing.T) {
-	tree := NewBTree(3);
+	tree := NewBTree(3)
 	for i := 0; i < 50; i++ {
-		tree.Insert(i, fmt.Sprintf("foo: %d", i));
-		tree.Insert(-i, fmt.Sprintf("foo: %d", -i));
+		tree.Insert(i, fmt.Sprintf("foo: %d", i))
+		tree.Insert(-i, fmt.Sprintf("foo: %d", -i))
 		if tree.Size() != 2*(i+1) {
-			t.Error("break in i:", i);
-			break;
+			t.Error("break in i:", i)
+			break
 		}
 	}
 	if tree.Size() != 100 {

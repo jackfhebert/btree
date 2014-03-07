@@ -163,10 +163,10 @@ func (currentNode *node) splitNode() {
 	currentNode.currentSize--
 
 	for i := middleIndex + 1; i < len(currentNode.items); i++ {
-		rightNode.items[rightNode.currentSize] = currentNode.items[i];
+		rightNode.items[rightNode.currentSize] = currentNode.items[i]
 		if currentNode.children != nil {
 			rightNode.isLeaf = false
-			rightNode.children[rightNode.currentSize] = currentNode.children[i];
+			rightNode.children[rightNode.currentSize] = currentNode.children[i]
 		}
 		rightNode.currentSize++
 		currentNode.items[i] = item{0, nil}
@@ -188,20 +188,20 @@ func (currentNode *node) splitNode() {
 		leftNode := &node{true, currentNode.maxSize, 0, currentNode,
 			make([]item, len(currentNode.items)), nil}
 		if currentNode.children != nil {
-			leftNode.isLeaf = false;
+			leftNode.isLeaf = false
 			leftNode.children = make([]*node, 1+cap(currentNode.items))
 		}
 
 		for i := 0; i < middleIndex; i++ {
-			leftNode.items[i] = currentNode.items[i];
+			leftNode.items[i] = currentNode.items[i]
 			if currentNode.children != nil {
-				leftNode.children[i] = currentNode.children[i];
+				leftNode.children[i] = currentNode.children[i]
 			}
 			currentNode.items[i] = item{0, nil}
 			leftNode.currentSize++
 		}
 		if currentNode.children != nil {
-			leftNode.children[middleIndex] = currentNode.children[middleIndex];
+			leftNode.children[middleIndex] = currentNode.children[middleIndex]
 		}
 		// The current node now only has one item - this is only
 		// allowed at the root of the tree.
@@ -213,7 +213,7 @@ func (currentNode *node) splitNode() {
 			currentNode.children = make([]*node, 1+cap(currentNode.items))
 		}
 		//
-	        rightNode.parent = currentNode;
+		rightNode.parent = currentNode
 		currentNode.children[0] = leftNode
 		currentNode.children[1] = rightNode
 	}
@@ -224,7 +224,7 @@ func (n *node) search(key int) interface{} {
 		// If we are at a leaf node, search through the items list
 		// until the end or we have found a key which is larger
 		// than the search key.
-		for i:= 0; i < n.currentSize && key >= n.items[i].key; i++ {
+		for i := 0; i < n.currentSize && key >= n.items[i].key; i++ {
 			if n.items[i].key == key {
 				return n.items[i].value
 			}
@@ -252,7 +252,7 @@ func (n *node) search(key int) interface{} {
 // In theory we could track this at the root, but we can also do it this
 // way for fun.
 func (node *node) size() int {
-	totalSize := node.currentSize;
+	totalSize := node.currentSize
 	fmt.Println(node)
 	if !node.isLeaf {
 		for i := 0; i < node.currentSize; i++ {
