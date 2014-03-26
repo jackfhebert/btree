@@ -84,8 +84,7 @@ func (tree *BTree) Search(key int) interface{} {
 }
 
 func (tree *BTree) Remove(key int) interface{} {
-	// TODO
-	return nil
+	return tree.root.remove(key)
 }
 
 // Function to insert an item into a node.
@@ -303,4 +302,31 @@ func (node *node) keyTraversal() []int {
 		results = append(results, node.children[node.currentSize].keyTraversal()...)
 	}
 	return results
+}
+
+func (node *node) remove(key int) interface{} {
+	if node.isLeaf {
+		matchedValue := nil;
+		readPointer := 0
+		for i := 0; i < node.currentSize; i++ {
+			node.items[readPointer] = node.items[i]
+			if key == node.items[i].key && matchedValue == nil {
+				matchedValue = node.items[i].value;
+				node.currentSize--
+			} else {
+				readPointer++
+			}
+		}
+		if matchedValue {
+			node.items[node.currentSize] = item{0, nil}
+		}
+		return matchedValue
+	} else {
+		for i := 0; i < node.currentSize; i++ {
+			if key <= node.items[i].key {
+				return node.children[i].remove(key)
+			}
+		}
+		return node.children[node.currentSize].remove(key)
+	}
 }

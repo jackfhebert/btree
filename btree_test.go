@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// Test that the constructor works.
 func Test_BTreeConstructor(t *testing.T) {
 	tree := NewBTree(5)
 	if tree.root == nil {
@@ -226,6 +227,8 @@ func Test_SplitRoot(t *testing.T) {
 	}
 }
 
+// Test adding many items to a tree, all in increasing size.
+// Search and depth are testing as well as the keytraversal.
 func Test_AddManyAllIncreasing(t *testing.T) {
 	tree := NewBTree(2);
 	// Add a bunch of items and make sure that it doesn't crash.
@@ -242,6 +245,8 @@ func Test_AddManyAllIncreasing(t *testing.T) {
 	if tree.Size() != 50 {
 		t.Error("tree has wrong size:", tree.Size(), tree.root)
 	}
+	// Check that the keys in the tree are all as expected and in
+	// sorted order.
 	keys := tree.root.keyTraversal()
 	if len(keys) != len(expectedKeys) {
 		t.Error("weird keys length: ", keys)
@@ -262,8 +267,13 @@ func Test_AddManyAllIncreasing(t *testing.T) {
 	if tree.Search(-2) != nil {
 		t.Error("Accidentally found a value for -2.")
 	}
+	// Check that the tree didn't get excessively deep.
+	if tree.Depth() != 3 {
+		t.Error("Weird tree depth:", tree.Depth())
+	}
 }
 
+// Test adding many items to a tree, all in decreasing order.
 func Test_AddManyAllDecreasing(t *testing.T) {
 	tree := NewBTree(2)
 	// Add a bunch of items and make sure that it doesn't crash.
@@ -281,6 +291,7 @@ func Test_AddManyAllDecreasing(t *testing.T) {
 	if tree.Size() != 50 {
 		t.Error("tree has wrong size:", tree.Size(), tree.root)
 	}
+	// Check that all of the keys are there in the correct sorted order.
 	keys := tree.root.keyTraversal()
 	if len(keys) != len(expectedKeys) {
 		t.Error("weird keys length: ", keys)
@@ -301,8 +312,14 @@ func Test_AddManyAllDecreasing(t *testing.T) {
 	if tree.Search(-10) != "foo: -10" {
 		t.Error("Wrong value for key -10:", tree.Search(-10))
 	}
+
+	// Check that the tree did not get excessively deep.
+	if tree.Depth() != 3 {
+		t.Error("Weird tree depth:", tree.Depth())
+	}
 }
 
+// Test adding items to a tree in alternating order.
 func Test_AddManyAlternating(t *testing.T) {
 	tree := NewBTree(3)
 	for i := 0; i < 50; i++ {
@@ -324,6 +341,11 @@ func Test_AddManyAlternating(t *testing.T) {
 	}
 	if tree.Search(-10) != "foo: -10" {
 		t.Error("Wrong value found for -10:", tree.Search(-10))
+	}
+
+	// Check that the tree did not get excessively deep.
+	if tree.Depth() != 3 {
+		t.Error("Weird tree depth:", tree.Depth())
 	}
 }
 
